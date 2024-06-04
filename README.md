@@ -1,66 +1,57 @@
 # install-Qbtorrent-Web---Server-Ubuntu-22
 Instalação do Qb Torrent no servidor Ubuntu Server 22
 
-Instalando o qBittorrent no Ubuntu Server 22 com Acesso Web: Guia Completo
-
-Para instalar e configurar o qBittorrent com acesso web no Ubuntu Server 22, siga estes passos:
-
-Pré-requisitos:
-
-    Ubuntu Server 22.04 LTS (Jammy Jellyfish) instalado e atualizado.
-    Acesso ao terminal com privilégios de root ou sudo.
-    Conexão com a internet ativa.
-
-Etapas de instalação:
-
-    Adicione o repositório qBittorrent: Adicione o repositório oficial do qBittorrent usando o seguinte comando:
+Installation
 
 sudo add-apt-repository ppa:qbittorrent-team/qbittorrent-stable
-
-    Atualize a lista de pacotes: Atualize a lista de pacotes disponíveis com o comando:
-
 sudo apt update
+sudo apt install qbittorrent-nox
 
-    Instale o qBittorrent: Instale o qBittorrent e seus pacotes de dependências usando o comando:
+qBittorrent-nox (without X) is meant to be controlled via its Web UI which is accessible as a default at http://localhost:8080. The Web UI access is secured and the default account username is admin with adminadmin as default password…
+Systemd service
 
-sudo apt install qbittorrent-nox qbittorrent-webconfig
+Create a systemd service file for qBittorrent-nox that restart it automatically on system reboot:
 
-    Configure o acesso web: Acesse o arquivo de configuração do qBittorrent-webconfig com o comando:
+sudo nano /etc/systemd/system/qbittorrent-nox.service
 
-sudo nano /etc/qbittorrent-webconfig/config.py
+[Unit]
+Description=qBittorrent-nox
+After=network.target
 
-    Edite as configurações: Edite as seguintes configurações no arquivo:
-        WEBUI_ADMIN_USERNAME: Altere o nome de usuário padrão para o acesso web (ex: "admin").
-        WEBUI_ADMIN_PASSWORD: Altere a senha padrão para o acesso web (recomenda-se uma senha forte).
-        WEBUI_PORT: Altere a porta padrão da interface web (ex: 8080).
+[Service]
+Type=forking
+ExecStart=/usr/bin/qbittorrent-nox -d --webui-port=8080
+Restart=on-failure
 
-    Salve o arquivo e feche o editor.
+[Install]
+WantedBy=multi-user.target
 
-    Reinicie o qBittorrent: Reinicie o serviço qBittorrent para aplicar as alterações:
+If there’s another service running on port 8080, just change to another available port and set the -d --web-port=xxxx accordingly.
 
-sudo systemctl restart qbittorrent-nox
+Then run following commands to enable and start this service:
 
-    Acesse a interface web: Abra um navegador web e acesse a URL:
+sudo systemctl daemon-reload
+sudo systemctl enable qbittorrent-nox
+sudo systemctl start qbittorrent-nox
 
-http://<endereço-IP-do-seu-servidor>:<porta-definida-na-configuração>
+Check its running status by;
 
-Observações importantes:
+sudo systemctl status qbittorrent-nox
 
-    Substitua <endereço-IP-do-seu-servidor> pelo endereço IP real do seu servidor Ubuntu.
-    Use o nome de usuário e senha definidos na configuração do arquivo config.py para acessar a interface web.
-    Por padrão, o qBittorrent usa a porta 8080 para a interface web. Você pode alterar essa porta na etapa 5 da instalação.
-    Acesse a documentação oficial do qBittorrent para mais informações sobre a configuração da interface web: https://www.reddit.com/r/qBittorrent/comments/zvxe5w/web_ui_setup/
+Nginx proxy
 
-Dicas extras:
+Following location directive should enough;
 
-    Configure o firewall: Permita o acesso à porta definida para a interface web no firewall do seu servidor para que ela seja acessível externamente.
-    Proteja seu acesso web: Use uma senha forte para o acesso web e considere habilitar autenticação de dois fatores para maior segurança.
-    Mantenha o qBittorrent atualizado: Execute atualizações regularmente para garantir a segurança e estabilidade do software.
+location / {
+    proxy_redirect     off;
+    proxy_set_header   Upgrade $http_upgrade;
+    proxy_set_header   Connection "upgrade";
+    proxy_set_header   Host $host;
+    proxy_set_header   X-Real-IP $remote_addr;
+    proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass         http://localhost:8080; # qBittorrent-nox running port
+}
 
-Recursos adicionais:
+You can proxy it to sub locations as well.
 
-    Documentação oficial do Ubuntu Server: https://ubuntu.com/server/docs
-    Documentação oficial do qBittorrent: https://www.reddit.com/r/qBittorrent/comments/zvxe5w/web_ui_setup/
-    Fórum da comunidade do qBittorrent: https://forum.qbittorrent.org/
-
-Espero que este guia completo tenha ajudado você a instalar e configurar o qBittorrent com acesso web no seu Ubuntu Server 22 de forma segura e eficiente!
+Now you can access qBittorrent-nox Web UI with your settings, don’t forget to change the default password in the Web UI… 😎
