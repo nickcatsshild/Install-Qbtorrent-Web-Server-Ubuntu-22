@@ -111,3 +111,27 @@ Se você deseja acessar a interface web de outro dispositivo em sua rede, pode c
 * Este guia fornece uma instalação básica. Consulte a documentação oficial do qBittorrent para opções de configuração mais avançadas: [https://www.qbittorrent.org/download](https://www.qbittorrent.org/download)
 * Lembre-se de alterar a senha padrão o mais rápido possível para garantir a segurança da sua instalação.
 * Para um guia mais detalhado sobre a configuração do Nginx como proxy reverso, consulte a documentação do Nginx ou tutoriais específicos.
+
+* REMOVER
+  
+1. Remover instalação
+* sudo apt remove --purge qbittorrent-nox -y
+
+2. Apagar arquivos de configuração
+
+Os arquivos de configuração podem estar em vários locais, dependendo de como foi executado. Apague todos:
+
+sudo rm -rf /home/*/.config/qBittorrent
+sudo rm -rf /root/.config/qBittorrent
+sudo rm -rf /var/lib/qbittorrent
+sudo rm -rf /etc/systemd/system/qbittorrent-nox.service
+
+3. Apagar diretórios de downloads (opcional)
+
+Se quiser remover também os arquivos baixados, apague os diretórios onde o qBittorrent salvava os torrents:
+
+sudo rm -rf /mnt/DOWNLOADS
+sudo rm -rf /mnt/Torrents
+sudo rm -rf /home/*/Downloads/qBittorrent
+
+⚠️ Atenção: Se houver arquivos importantes nos diretórios de download, faça backup antes de rodar os comandos acima.
