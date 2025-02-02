@@ -135,3 +135,18 @@ sudo rm -rf /mnt/Torrents
 sudo rm -rf /home/*/Downloads/qBittorrent
 
 ⚠️ Atenção: Se houver arquivos importantes nos diretórios de download, faça backup antes de rodar os comandos acima.
+
+FIZ MERDA UERO RESETAR A SENHA ADM
+
+nano /.config/qBittorrent/qBittorrent.conf
+
+Agora, localize e remova as seguintes linhas se existirem:
+
+WebUI\Password_PBKDF2=@ByteArray(...)
+WebUI\Password_ha1=@ByteArray(...)
+
+Se quiser redefinir o nome de usuário para admin, edite ou adicione esta linha:
+
+WebUI\Username=admin
+
+Salve e saia (Ctrl + X, Y, Enter).
